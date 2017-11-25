@@ -5,7 +5,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/pingcap/tidb/terror"
+
 	"github.com/juliotorresmoreno/pomodoro-server/controllers"
+	"github.com/juliotorresmoreno/pomodoro-server/db"
+	"github.com/juliotorresmoreno/pomodoro-server/models"
 	"github.com/juliotorresmoreno/pomodoro-server/ws"
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
@@ -15,18 +19,21 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type handlerFunc func(http.ResponseWriter, *http.Request, string)
+type handlerFunc func(http.ResponseWriter, *http.Request, models.Session)
 
 func NewRouter() http.Handler {
 	router := mux.NewRouter()
 	hub := ws.NewHub()
 	auth := controllers.NewAuth(hub)
+	timer := controllers.NewTimer(hub)
 
 	router.HandleFunc("/auth/login", auth.Login).Methods("POST")
 	router.HandleFunc("/auth/register", auth.Register).Methods("POST")
+	router.HandleFunc("/auth/session", auth.Session).Methods("GET")
+	router.HandleFunc("/timer/new", newRouterProtect(timer.NewPomodoro)).Methods("PUT")
 
-	router.HandleFunc("/ws", newRouterProtect(func(w http.ResponseWriter, r *http.Request, session string) {
-		hub.ServeWs(w, r, "")
+	router.HandleFunc("/ws", newRouterProtect(func(w http.ResponseWriter, r *http.Request, session models.Session) {
+		hub.ServeWs(w, r, session)
 	}))
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("webroot")))
@@ -36,7 +43,21 @@ func NewRouter() http.Handler {
 
 func newRouterProtect(routerFunc handlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		routerFunc(w, r, "")
+		token := r.URL.Query().Get("token")
+		if token == "" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		conn, err := db.NewConnection()
+		if err != nil {
+			terror.Log(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close()
+		session := models.Session{}
+		conn.Find(&session, "token = ?", token)
+		routerFunc(w, r, session)
 	}
 }
 

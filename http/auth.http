@@ -16,8 +16,13 @@ POST http://127.0.0.1:8080/auth/register
 Content-Type: application/json
 
 {
-    "name": "", 
-    "lastname": "",
+    "name": "julio", 
+    "lastname": "torres",
     "username": "admin",
     "password": "admin"
 }
+
+
+###
+
+GET http://127.0.0.1:8080/auth/session?token=MTUxMTYyNzExOQgRmy1IPKG0EVhTSEq5HQa68xR7

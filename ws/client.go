@@ -5,6 +5,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/juliotorresmoreno/pomodoro-server/models"
 	"github.com/pingcap/tidb/terror"
 
 	"github.com/gorilla/websocket"
@@ -33,21 +34,22 @@ type user struct {
 }
 
 // ServeWs aca es donde establenemos la conexion websocket con el usuario
-func (hub *Hub) ServeWs(w http.ResponseWriter, r *http.Request, session string) {
+func (hub *Hub) ServeWs(w http.ResponseWriter, r *http.Request, session models.Session) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		terror.Log(err)
 		return
 	}
-	if _, ok := hub.clients[session]; ok {
-		hub.clients[session] = &user{
+	username := session.Username
+	if _, ok := hub.clients[username]; ok {
+		hub.clients[username] = &user{
 			clients: make([]*connection, 0),
 		}
 	}
 	client := &connection{
 		Conn: conn,
 	}
-	hub.clients[session].clients = append(hub.clients[session].clients, client)
+	hub.clients[username].clients = append(hub.clients[username].clients, client)
 	client.Listen()
 }
 

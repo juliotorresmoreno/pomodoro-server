@@ -6,7 +6,8 @@ type User struct {
 	Name     string `xorm:"varchar(100) not null" valid:"required,alphaSpaces"`
 	LastName string `xorm:"varchar(100) not null" valid:"required,alphanum"`
 	Username string `xorm:"varchar(100) not null" valid:"required,unique"`
-	Password string `xorm:"password"`
+	Password string `xorm:"password" valid:"required,password"`
+	Token    string `xorm:"varchar(100)"`
 }
 
 //TableName name of table
