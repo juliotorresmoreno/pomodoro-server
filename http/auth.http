@@ -1,0 +1,23 @@
+
+
+
+POST http://127.0.0.1:8080/auth/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "admin"
+}
+
+
+###
+
+POST http://127.0.0.1:8080/auth/register
+Content-Type: application/json
+
+{
+    "name": "", 
+    "lastname": "",
+    "username": "admin",
+    "password": "admin"
+}
