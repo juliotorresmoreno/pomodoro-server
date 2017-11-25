@@ -56,7 +56,7 @@ func (conn Connection) ValidateStruct(model models.Model) (bool, error) {
 				And(field.Name+" = ?", value).
 				Count()
 			if count > 0 {
-				return false, fmt.Errorf("%v exists", value)
+				return false, fmt.Errorf("%v: %v exists", field.Name, value)
 			}
 		}
 	}
@@ -81,6 +81,9 @@ func Sync() {
 	}
 	defer conn.Close()
 	if err = conn.Sync2(new(models.User)); err != nil {
+		log.Fatal(err)
+	}
+	if err = conn.Sync2(new(models.Task)); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -24,8 +24,8 @@ type handlerFunc func(http.ResponseWriter, *http.Request, models.Session)
 func NewRouter() http.Handler {
 	router := mux.NewRouter()
 	hub := ws.NewHub()
-	auth := controllers.NewAuth(hub)
 	timer := controllers.NewTimer(hub)
+	auth := controllers.NewAuth(hub, timer.TaskManager)
 
 	router.HandleFunc("/auth/login", auth.Login).Methods("POST")
 	router.HandleFunc("/auth/register", auth.Register).Methods("POST")

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/juliotorresmoreno/pomodoro-server/tasks"
+
 	"github.com/juliotorresmoreno/pomodoro-server/models"
 	"github.com/pingcap/tidb/terror"
 	"golang.org/x/crypto/bcrypt"
@@ -15,13 +17,15 @@ import (
 
 //Auth
 type Auth struct {
-	hub *ws.Hub
+	hub         *ws.Hub
+	taskManager tasks.TaskManager
 }
 
-//Auth
-func NewAuth(hub *ws.Hub) Auth {
+//NewAuth s
+func NewAuth(hub *ws.Hub, taskManager tasks.TaskManager) Auth {
 	return Auth{
-		hub: hub,
+		hub:         hub,
+		taskManager: taskManager,
 	}
 }
 
@@ -48,6 +52,7 @@ func (auth Auth) Login(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		auth.taskManager.Load(user.Username)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": true,
