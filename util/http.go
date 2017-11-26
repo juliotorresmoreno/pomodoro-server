@@ -11,7 +11,7 @@ import (
 //GetPostParams Get the parameters sent by the post method in an http request
 func GetPostParams(r *http.Request) url.Values {
 	switch {
-	case r.Header.Get("Content-Type") == "application/json":
+	case strings.Contains(r.Header.Get("Content-Type"), "application/json"):
 		params := map[string]interface{}{}
 		result := url.Values{}
 		decoder := json.NewDecoder(r.Body)
@@ -22,7 +22,7 @@ func GetPostParams(r *http.Request) url.Values {
 			}
 		}
 		return result
-	case r.Header.Get("Content-Type") == "application/x-www-form-urlencoded":
+	case strings.Contains(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded"):
 		r.ParseForm()
 		return r.Form
 	case strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data"):

@@ -1,6 +1,9 @@
 package tasks
 
 import (
+	"time"
+
+	log "github.com/Sirupsen/logrus"
 	"github.com/juliotorresmoreno/pomodoro-server/db"
 	"github.com/juliotorresmoreno/pomodoro-server/models"
 	"github.com/pingcap/tidb/terror"
@@ -48,6 +51,7 @@ func (taskManager TaskManager) NewTask(username string, task models.Task) (Task,
 	}
 	defer conn.Close()
 	task.ID, err = conn.Insert(task)
+	log.Infof("TaskID: %v", task.ID)
 	if err != nil {
 		terror.Log(err)
 		return Task{}, err
@@ -60,7 +64,16 @@ type Task struct {
 }
 
 func (task Task) Start() {
-
+	conn, err := db.NewConnection()
+	if err != nil {
+		terror.Log(err)
+		return
+	}
+	task.task.StartDate = time.Now()
+	_, err = conn.Where("id = ?", task.task.ID).Update(task.task)
+	if err != nil {
+		terror.Log(err)
+	}
 }
 
 func (task Task) ID() int64 {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/juliotorresmoreno/pomodoro-server/tasks"
 
 	"github.com/juliotorresmoreno/pomodoro-server/models"
@@ -107,6 +108,7 @@ func (auth Auth) Session(w http.ResponseWriter, r *http.Request) {
 
 //Register dd
 func (auth Auth) Register(w http.ResponseWriter, r *http.Request) {
+	log.Info(r.Header)
 	data := util.GetPostParams(r)
 	name := data.Get("name")
 	lastname := data.Get("lastname")

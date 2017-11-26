@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"time"
-
 	"github.com/juliotorresmoreno/pomodoro-server/models"
 	"github.com/juliotorresmoreno/pomodoro-server/tasks"
 	"github.com/juliotorresmoreno/pomodoro-server/util"
@@ -30,8 +28,7 @@ func (timer Timer) NewPomodoro(w http.ResponseWriter, r *http.Request, session m
 	data := util.GetPostParams(r)
 	name := data.Get("name")
 	task := models.Task{
-		Name:      name,
-		StartDate: time.Now(),
+		Name: name,
 	}
 	manager := timer.TaskManager
 	_task, err := manager.NewTask(session.Username, task)
