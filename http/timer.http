@@ -1,4 +1,9 @@
 
 
 
-PUT http://127.0.0.1:8080/timer/new?token=MTUxMTYyOTkyOAgRmy1IPKG0EVhTSEq5HQa68xR7
+PUT http://127.0.0.1:8080/tasks/new?token=MTUxMTcyNjk4NAGK3XcDgJsNBMdG670iC3PdkVFH
+
+
+###
+
+GET http://127.0.0.1:8080/tasks?token=MTUxMTcyNjk4NAGK3XcDgJsNBMdG670iC3PdkVFH

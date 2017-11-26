@@ -5,8 +5,8 @@ POST http://127.0.0.1:8080/auth/login
 Content-Type: application/json
 
 {
-    "username": "admin",
-    "password": "admin"
+    "username": "jtorres990",
+    "password": "123456"
 }
 
 
@@ -18,11 +18,11 @@ Content-Type: application/json
 {
     "name": "julio", 
     "lastname": "torres",
-    "username": "admin",
-    "password": "admin"
+    "username": "jtorres990",
+    "password": "123456"
 }
 
 
 ###
 
-GET http://127.0.0.1:8080/auth/session?token=MTUxMTYyOTkyOAgRmy1IPKG0EVhTSEq5HQa68xR7
+GET http://127.0.0.1:8080/auth/session?token=MTUxMTcwMzE3MwgRmy1IPKG0EVhTSEq5HQa68xR7

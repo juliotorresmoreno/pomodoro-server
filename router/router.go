@@ -24,13 +24,14 @@ type handlerFunc func(http.ResponseWriter, *http.Request, models.Session)
 func NewRouter() http.Handler {
 	router := mux.NewRouter()
 	hub := ws.NewHub()
-	timer := controllers.NewTimer(hub)
-	auth := controllers.NewAuth(hub, timer.TaskManager)
+	tasks := controllers.NewTasks(hub)
+	auth := controllers.NewAuth(hub, tasks.TaskManager)
 
 	router.HandleFunc("/auth/login", auth.Login).Methods("POST")
 	router.HandleFunc("/auth/register", auth.Register).Methods("POST")
 	router.HandleFunc("/auth/session", auth.Session).Methods("GET")
-	router.HandleFunc("/timer/new", newRouterProtect(timer.NewPomodoro)).Methods("PUT")
+	router.HandleFunc("/tasks/new", newRouterProtect(tasks.NewPomodoro)).Methods("PUT")
+	router.HandleFunc("/tasks", newRouterProtect(tasks.List)).Methods("GET")
 
 	router.HandleFunc("/ws", newRouterProtect(func(w http.ResponseWriter, r *http.Request, session models.Session) {
 		hub.ServeWs(w, r, session)

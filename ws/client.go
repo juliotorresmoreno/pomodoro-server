@@ -26,11 +26,13 @@ const (
 )
 
 type connection struct {
+	username string
+	hub      *Hub
 	*websocket.Conn
 }
 
 type user struct {
-	clients []*connection
+	clients map[*connection]bool
 }
 
 // ServeWs aca es donde establenemos la conexion websocket con el usuario
@@ -41,25 +43,24 @@ func (hub *Hub) ServeWs(w http.ResponseWriter, r *http.Request, session models.S
 		return
 	}
 	username := session.Username
-	if _, ok := hub.clients[username]; ok {
+	if _, ok := hub.clients[username]; !ok {
 		hub.clients[username] = &user{
-			clients: make([]*connection, 0),
+			clients: map[*connection]bool{},
 		}
 	}
-	client := &connection{
-		Conn: conn,
-	}
-	hub.clients[username].clients = append(hub.clients[username].clients, client)
+	client := &connection{Conn: conn, hub: hub, username: username}
+	hub.clients[username].clients[client] = true
 	client.Listen()
 }
 
 //Listen
 func (c *connection) Listen() {
+	log.Info("connection open")
 	for {
-		_, _, err := c.ReadMessage()
-		if err != nil {
+		if _, _, err := c.ReadMessage(); err != nil {
+			c.hub.Remove(c.username, c)
+			log.Info("connection close")
 			break
 		}
-		log.Info("conn close")
 	}
 }

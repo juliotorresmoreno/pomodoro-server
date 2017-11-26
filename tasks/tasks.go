@@ -6,44 +6,53 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/juliotorresmoreno/pomodoro-server/db"
 	"github.com/juliotorresmoreno/pomodoro-server/models"
+	"github.com/juliotorresmoreno/pomodoro-server/ws"
 	"github.com/pingcap/tidb/terror"
 )
 
-type TaskManager map[string][]Task
-
-func NewTaskManager() TaskManager {
-	return TaskManager{}
+type TaskManager struct {
+	hub *ws.Hub
+	taskManager
 }
 
-func (taskManager TaskManager) Load(username string) error {
-	if _, ok := taskManager[username]; ok {
-		return nil
+type taskManager map[string][]Task
+
+func NewTaskManager(hub *ws.Hub) TaskManager {
+	return TaskManager{hub: hub, taskManager: taskManager{}}
+}
+
+func (taskManager TaskManager) Load(session models.Session) ([]models.Task, error) {
+	_taskManager := taskManager.taskManager
+	username := session.Username
+	if _, ok := _taskManager[username]; ok {
+		return nil, nil
 	}
-	taskManager[username] = make([]Task, 0)
+	_taskManager[username] = make([]Task, 0)
 	conn, err := db.NewConnection()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer conn.Close()
 	tasks := make([]models.Task, 0)
-	conn.Where("user_id = ?").Find(&tasks)
+	conn.Where("user_id = ?", session.ID).Find(&tasks)
 	for _, task := range tasks {
 		_task := Task{
 			task: task,
 		}
-		taskManager[username] = append(taskManager[username], _task)
+		_taskManager[username] = append(_taskManager[username], _task)
 	}
-	return nil
+	return tasks, nil
 }
 
 func (taskManager TaskManager) NewTask(username string, task models.Task) (Task, error) {
-	if _, ok := taskManager[username]; !ok {
-		taskManager[username] = make([]Task, 0)
+	_taskManager := taskManager.taskManager
+	if _, ok := _taskManager[username]; !ok {
+		_taskManager[username] = make([]Task, 0)
 	}
 	_task := Task{
 		task: task,
 	}
-	taskManager[username] = append(taskManager[username], _task)
+	_taskManager[username] = append(_taskManager[username], _task)
 	conn, err := db.NewConnection()
 	if err != nil {
 		terror.Log(err)
