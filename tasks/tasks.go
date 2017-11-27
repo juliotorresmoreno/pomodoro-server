@@ -88,7 +88,7 @@ func (taskManager TaskManager) Start(session models.Session, id int64, notificat
 }
 
 func (taskManager TaskManager) setTimeout(session models.Session, task models.Task, notification func(models.Session, []models.Task)) {
-	timer := time.AfterFunc(10*time.Second, func() {
+	timer := time.AfterFunc(25*time.Minute, func() {
 		conn, err := db.NewConnection()
 		if err != nil {
 			terror.Log(err)
@@ -121,7 +121,7 @@ func (taskManager TaskManager) setTimeout(session models.Session, task models.Ta
 }
 
 func (taskManager TaskManager) sleep(session models.Session, task models.Task, notification func(models.Session, []models.Task)) {
-	timer := time.AfterFunc(5*time.Second, func() {
+	timer := time.AfterFunc(5*time.Minute, func() {
 		log.Info("Descanzo transcurrido")
 		if taskManager.taskRunning == task.ID {
 			taskManager.setTimeout(session, task, notification)
@@ -134,7 +134,7 @@ func (taskManager TaskManager) sleep(session models.Session, task models.Task, n
 }
 
 func (taskManager TaskManager) lastSleep(session models.Session, task models.Task, notification func(models.Session, []models.Task)) {
-	timer := time.AfterFunc(5*time.Second, func() {
+	timer := time.AfterFunc(30*time.Minute, func() {
 		conn, err := db.NewConnection()
 		if err != nil {
 			terror.Log(err)
