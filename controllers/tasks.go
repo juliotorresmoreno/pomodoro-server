@@ -7,7 +7,9 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/pingcap/tidb/terror"
 
+	"github.com/juliotorresmoreno/pomodoro-server/db"
 	"github.com/juliotorresmoreno/pomodoro-server/models"
 	"github.com/juliotorresmoreno/pomodoro-server/tasks"
 	"github.com/juliotorresmoreno/pomodoro-server/util"
@@ -71,6 +73,75 @@ func (tasks Tasks) Start(w http.ResponseWriter, r *http.Request, session models.
 	}
 	_tasks, err := tasks.TaskManager.Start(session, int64(id), tasks.Notification)
 	tasks.sendList(w, session, _tasks, err)
+}
+
+func (tasks Tasks) Statistics(w http.ResponseWriter, r *http.Request, session models.Session) {
+	conn, err := db.NewConnection()
+	if err != nil {
+		terror.Log(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	defer conn.Close()
+	response := make([]map[string]interface{}, 0, 2)
+	sql := `SELECT status, COUNT(*) cant FROM tasks WHERE user_id = ? and status = 'wait' GROUP BY status`
+	result, err := conn.QueryString(sql, session.ID)
+	if err != nil {
+		terror.Log(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	value := 0
+	name := "wait"
+	if len(result) > 0 {
+		name = result[0]["status"]
+		value, _ = strconv.Atoi(result[0]["cant"])
+	}
+	response = append(response, map[string]interface{}{
+		"name": result[0]["status"],
+		"v":    value,
+	})
+
+	sql = `SELECT status, COUNT(*) cant FROM tasks WHERE user_id = ? and status = 'completed' GROUP BY status`
+	result, err = conn.QueryString(sql, session.ID)
+	if err != nil {
+		terror.Log(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	value = 0
+	name = "completed"
+	if len(result) > 0 {
+		name = result[0]["status"]
+		value, _ = strconv.Atoi(result[0]["cant"])
+	}
+	response = append(response, map[string]interface{}{
+		"name": name,
+		"v":    value,
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"data":    response,
+	})
 }
 
 func (tasks Tasks) Stop(w http.ResponseWriter, r *http.Request, session models.Session) {

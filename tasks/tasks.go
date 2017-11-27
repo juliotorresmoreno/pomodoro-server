@@ -42,7 +42,7 @@ func (taskManager TaskManager) load(conn *db.Connection, session models.Session)
 	if _, ok := _taskManager[username]; !ok {
 		fmt.Println(username, taskManager, taskManager.taskManager)
 		taskManager.taskManager[username] = map[int64]Task{}
-		conn.Where("user_id = ?", session.ID).Update(models.Task{
+		conn.Where("user_id = ? and status = 'running'", session.ID).Update(models.Task{
 			Status: "wait",
 		})
 	}

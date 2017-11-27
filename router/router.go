@@ -35,6 +35,7 @@ func NewRouter() http.Handler {
 	router.HandleFunc("/tasks/{id}", newRouterProtect(tasks.Delete)).Methods("DELETE")
 	router.HandleFunc("/tasks/start", newRouterProtect(tasks.Start)).Methods("POST")
 	router.HandleFunc("/tasks/stop", newRouterProtect(tasks.Stop)).Methods("POST")
+	router.HandleFunc("/tasks/statistics", newRouterProtect(tasks.Statistics)).Methods("GET")
 
 	router.HandleFunc("/ws", newRouterProtect(func(w http.ResponseWriter, r *http.Request, session models.Session) {
 		hub.ServeWs(w, r, session)

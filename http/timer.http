@@ -11,3 +11,9 @@ Content-Type: application/json
 ###
 
 GET http://127.0.0.1:8080/tasks?token=MTUxMTc2NDE5MA7SUF1nmB9vwVk6DAY3DRx4JXw1
+
+
+
+###
+
+GET http://127.0.0.1:8080/tasks/statistics?token=MTUxMTc4NDY5NwgRmy1IPKG0EVhTSEq5HQa68xR7
