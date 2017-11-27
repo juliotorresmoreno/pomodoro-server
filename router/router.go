@@ -30,8 +30,11 @@ func NewRouter() http.Handler {
 	router.HandleFunc("/auth/login", auth.Login).Methods("POST")
 	router.HandleFunc("/auth/register", auth.Register).Methods("POST")
 	router.HandleFunc("/auth/session", auth.Session).Methods("GET")
-	router.HandleFunc("/tasks/new", newRouterProtect(tasks.NewPomodoro)).Methods("PUT")
 	router.HandleFunc("/tasks", newRouterProtect(tasks.List)).Methods("GET")
+	router.HandleFunc("/tasks/new", newRouterProtect(tasks.NewPomodoro)).Methods("PUT")
+	router.HandleFunc("/tasks/{id}", newRouterProtect(tasks.Delete)).Methods("DELETE")
+	router.HandleFunc("/tasks/start", newRouterProtect(tasks.Start)).Methods("POST")
+	router.HandleFunc("/tasks/stop", newRouterProtect(tasks.Stop)).Methods("POST")
 
 	router.HandleFunc("/ws", newRouterProtect(func(w http.ResponseWriter, r *http.Request, session models.Session) {
 		hub.ServeWs(w, r, session)
@@ -57,14 +60,19 @@ func newRouterProtect(routerFunc handlerFunc) http.HandlerFunc {
 		}
 		defer conn.Close()
 		session := models.Session{}
-		conn.Find(&session, "token = ?", token)
+		conn.Where("token = ?", token).Get(&session)
+		if session.ID == 0 {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 		routerFunc(w, r, session)
 	}
 }
 
 func normalize(router http.Handler) http.Handler {
 	c := alice.New()
-	log := zerolog.New(os.Stdout).With().
+	log := zerolog.New(os.Stdout).
+		With().
 		Timestamp().
 		Str("role", "Pomodoro").
 		Logger()

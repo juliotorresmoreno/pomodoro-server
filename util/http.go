@@ -2,6 +2,8 @@ package util
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -14,11 +16,13 @@ func GetPostParams(r *http.Request) url.Values {
 	case strings.Contains(r.Header.Get("Content-Type"), "application/json"):
 		params := map[string]interface{}{}
 		result := url.Values{}
-		decoder := json.NewDecoder(r.Body)
-		decoder.Decode(&params)
+		body, _ := ioutil.ReadAll(r.Body)
+		json.Unmarshal(body, &params)
 		for k, v := range params {
 			if reflect.ValueOf(v).Kind().String() == "string" {
 				result.Set(k, v.(string))
+			} else {
+				result.Set(k, fmt.Sprint(v))
 			}
 		}
 		return result

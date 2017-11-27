@@ -1,9 +1,13 @@
 
 
 
-PUT http://127.0.0.1:8080/tasks/new?token=MTUxMTcyNjk4NAGK3XcDgJsNBMdG670iC3PdkVFH
+PUT http://127.0.0.1:8080/tasks/new?token=MTUxMTcyODE4OAgRmy1IPKG0EVhTSEq5HQa68xR7
+Content-Type: application/json
 
+{
+    name: "primera"
+}
 
 ###
 
-GET http://127.0.0.1:8080/tasks?token=MTUxMTcyNjk4NAGK3XcDgJsNBMdG670iC3PdkVFH
+GET http://127.0.0.1:8080/tasks?token=MTUxMTc2NDE5MA7SUF1nmB9vwVk6DAY3DRx4JXw1

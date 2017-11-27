@@ -25,4 +25,4 @@ Content-Type: application/json
 
 ###
 
-GET http://127.0.0.1:8080/auth/session?token=MTUxMTcwMzE3MwgRmy1IPKG0EVhTSEq5HQa68xR7
+GET http://127.0.0.1:8080/auth/session?token=MTUxMTczMjE5NQgRmy1IPKG0EVhTSEq5HQa68xR7

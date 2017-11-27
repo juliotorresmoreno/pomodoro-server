@@ -95,6 +95,13 @@ func (auth Auth) Session(w http.ResponseWriter, r *http.Request) {
 	conn, err := db.NewConnection()
 	if err != nil {
 		terror.Log(err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
 	}
 	defer conn.Close()
 	user := models.User{}

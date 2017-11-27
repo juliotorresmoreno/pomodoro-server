@@ -65,10 +65,12 @@ func (conn Connection) ValidateStruct(model models.Model) (bool, error) {
 
 //NewConnection new connection
 func NewConnection() (*Connection, error) {
-	conn, err := xorm.NewEngine("sqlite3", "./data/database.db")
+	//conn, err := xorm.NewEngine("sqlite3", "./data/database.db")
+	conn, err := xorm.NewEngine("mysql", "root:paramore@tcp(127.0.0.1:3306)/pomodoro")
 	if err != nil {
 		terror.Log(err)
 	}
+	conn.ShowSQL(false)
 	return &Connection{
 		Engine: conn,
 	}, err

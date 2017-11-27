@@ -2,14 +2,14 @@ package models
 
 //Session model user
 type Session struct {
-	ID       int64  `json:"-"`
-	Name     string `json:"name"`
-	LastName string `json:"last_name"`
-	Username string `json:"username"`
-	Token    string `json:"token"`
+	ID       int64  `xorm:"id bigint not null autoincr pk" json:"-"`
+	Name     string `xorm:"varchar(100) not null" json:"name"`
+	LastName string `xorm:"varchar(100) not null" json:"lastname"`
+	Username string `xorm:"varchar(100) not null" json:"username"`
+	Token    string `xorm:"varchar(100)" json:"token"`
 }
 
 //TableName name of table
 func (session Session) TableName() string {
-	return "user"
+	return "users"
 }
